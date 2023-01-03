@@ -21,7 +21,7 @@ EXPOSE 4443
 RUN go install \
     -tags pkcs11 \
     -ldflags "-w -X ${NOTARYPKG}/version.GitCommit=`git rev-parse --short HEAD` -X ${NOTARYPKG}/version.NotaryVersion=`cat NOTARY_VERSION`" \
-    ${NOTARYPKG}/cmd/notary && apk del git gcc libc-dev && rm -rf /var/cache/apk/ && notary*
+    ${NOTARYPKG}/cmd/notary && apk del git gcc libc-dev && rm -rf /var/cache/apk/*
 
 ENTRYPOINT [ "notary-server" ]
 CMD [ "-config=fixtures/server-config-local.json" ]
