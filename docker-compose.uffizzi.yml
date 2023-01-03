@@ -4,7 +4,7 @@ version: "3"
 x-uffizzi:
   ingress:
     service: nginx
-    port: 8081
+    port: 8080
 
 services:
 
@@ -90,6 +90,8 @@ services:
   harbor-nginx:
     image: nginx:alpine
     container_name: nginx
+    ports:
+      - '80:8080'
     volumes:
       - ./nginx-uffizzi:/etc/nginx
 
