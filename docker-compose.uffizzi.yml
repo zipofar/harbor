@@ -56,22 +56,22 @@ services:
   #     - SETGID
   #     - SETUID
 
-  notary-server:
-    image: "${SERVER_IMAGE}"
-    environment:
-      DB_URL: postgres://postgres:postgres@localhost:5432
+  # notary-server:
+  #   image: "${SERVER_IMAGE}"
+  #   environment:
+  #     DB_URL: postgres://postgres:postgres@localhost:5432
 
-  notary-signer:
-    image: "${SIGNER_IMAGE}"
-    environment:
-      DB_URL: postgres://postgres:postgres@localhost:5432
-    container_name: notary-signer
-    restart: always
-    networks:
-      harbor-notary:
-      notary-sig:
-        aliases:
-          - notarysigner
+  # notary-signer:
+  #   image: "${SIGNER_IMAGE}"
+  #   environment:
+  #     DB_URL: postgres://postgres:postgres@localhost:5432
+  #   container_name: notary-signer
+  #   restart: always
+  #   networks:
+  #     harbor-notary:
+  #     notary-sig:
+  #       aliases:
+  #         - notarysigner
 
   # signer:
   #   image: "${SIGNER_IMAGE}"
