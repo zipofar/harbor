@@ -257,9 +257,9 @@ jobs:
           REGISTRY_IMAGE=${{ needs.build-harbor-server.outputs.tags }}
           CORE_IMAGE=${{needs.build-harbor-core.outputs.tags}}
           PORTAL_IMAGE=${{needs.build-harbor-portal.outputs.tags}}
-          SERVER_IMAGE=${{needs.build-notary-server.outputs.tags}}
-          SIGNER_IMAGE=${{needs.build-notary-signer.outputs.tags}}
-          export REGISTRY_IMAGE CORE_IMAGE PORTAL_IMAGE SERVER_IMAGE SIGNER_IMAGE
+          # SERVER_IMAGE=${{needs.build-notary-server.outputs.tags}}
+          # SIGNER_IMAGE=${{needs.build-notary-signer.outputs.tags}}
+          export REGISTRY_IMAGE CORE_IMAGE PORTAL_IMAGE
           export UFFIZZI_URL=\$UFFIZZI_URL
           # Render simple template from environment variables.
           envsubst < docker-compose.uffizzi.yml > docker-compose.rendered.yml
