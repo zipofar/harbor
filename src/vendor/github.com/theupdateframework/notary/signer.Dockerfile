@@ -21,8 +21,8 @@ ENV NOTARY_SIGNER_TIMESTAMP_1="testpassword"
 # Install notary-signer
 RUN go install \
     -tags pkcs11 \
-    -ldflags "-w -X ${NOTARYPKG}/version.GitCommit=`git rev-parse --short HEAD` -X ${NOTARYPKG}/version.NotaryVersion=`cat NOTARY_VERSION`" \
-    ${NOTARYPKG}/cmd/notary && apk del git gcc libc-dev && rm -rf /var/cache/apk/*
+    # -ldflags "-w -X ${NOTARYPKG}/version.GitCommit=`git rev-parse --short HEAD` -X ${NOTARYPKG}/version.NotaryVersion=`cat NOTARY_VERSION`" \
+    ${NOTARYPKG}/cmd/notary-signer && apk del git gcc libc-dev && rm -rf /var/cache/apk/*
 
 ENTRYPOINT [ "notary-signer" ]
 CMD [ "-config=fixtures/signer-config-local.json" ]
