@@ -8,37 +8,31 @@ x-uffizzi:
 
 services:
 
-  server:
-    image: "${SERVER_IMAGE}"
-    networks:
-      - mdb
-      - sig
-    ports:
-      - "8080"
-      - "4443:4443"
-    # entrypoint: /usr/bin/env sh
-    # command: -c "./migrations/migrate.sh && notary-server -config=fixtures/server-config.postgres.json"
-    environment:
-      # MIGRATIONS_PATH: migrations/server/postgresql
-      DB_URL: postgres://postgres:postgres@localhost:5432
-    depends_on:
-      - postgresql
-      - signer
+  registry:
+    image: "${REGISTRY_IMAGE}"
+    container_name: registry
+    restart: always
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
 
-  signer:
-    image: "${SIGNER_IMAGE}"
-    networks:
-      mdb:
-      sig:
-        aliases:
-          - notarysigner
-    # entrypoint: /usr/bin/env sh
-    # command: -c "./migrations/migrate.sh && notary-signer -config=fixtures/signer-config.postgres.json"
-    environment:
-      # MIGRATIONS_PATH: migrations/signer/postgresql
-      DB_URL: postgres://postgres:postgres@localhost:5432
-    depends_on:
-      - postgresql
+  # signer:
+  #   image: "${SIGNER_IMAGE}"
+  #   networks:
+  #     mdb:
+  #     sig:
+  #       aliases:
+  #         - notarysigner
+  #   # entrypoint: /usr/bin/env sh
+  #   # command: -c "./migrations/migrate.sh && notary-signer -config=fixtures/signer-config.postgres.json"
+  #   environment:
+  #     # MIGRATIONS_PATH: migrations/signer/postgresql
+  #     DB_URL: postgres://postgres:postgres@localhost:5432
+  #   depends_on:
+  #     - postgresql
 
   postgresql:
     image: postgres:latest
