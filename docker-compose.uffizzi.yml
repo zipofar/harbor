@@ -4,7 +4,7 @@ version: "3"
 x-uffizzi:
   ingress:
     service: nginx
-    port: 8081
+    port: 80
 
 services:
 
@@ -32,7 +32,7 @@ services:
   #     - SETUID
 
   portal:
-    image: "${PORTAL_IMAGE}"
+    image: docker.io/bitnami/harbor-portal:2
     container_name: harbor-portal
     restart: always
     # cap_drop:
@@ -94,7 +94,7 @@ services:
     volumes:
       - ./nginx-uffizzi:/etc/nginx
     ports:
-      - '8081:8081'
+      - '80:8080'
 
   postgresql:
     image: postgres:latest
