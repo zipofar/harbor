@@ -1,0 +1,64 @@
+version: "3.3"
+
+# uffizzi integration
+x-uffizzi:
+  ingress:
+    service: server
+    port: 8080
+
+services:
+
+  server:
+    image: "${SERVER_IMAGE}"
+    networks:
+      - mdb
+      - sig
+    ports:
+      - "8080"
+      - "4443:4443"
+    # entrypoint: /usr/bin/env sh
+    # command: -c "./migrations/migrate.sh && notary-server -config=fixtures/server-config.postgres.json"
+    environment:
+      # MIGRATIONS_PATH: migrations/server/postgresql
+      DB_URL: postgres://postgres:postgres@localhost:5432
+    depends_on:
+      - postgresql
+      - signer
+
+  signer:
+    image: "${SIGNER_IMAGE}"
+    networks:
+      mdb:
+      sig:
+        aliases:
+          - notarysigner
+    # entrypoint: /usr/bin/env sh
+    # command: -c "./migrations/migrate.sh && notary-signer -config=fixtures/signer-config.postgres.json"
+    environment:
+      # MIGRATIONS_PATH: migrations/signer/postgresql
+      DB_URL: postgres://postgres:postgres@localhost:5432
+    depends_on:
+      - postgresql
+
+  postgresql:
+    image: postgres:latest
+    environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=password
+    networks:
+      - mdb
+    volumes:
+      # - ./notarysql/postgresql-initdb.d:/docker-entrypoint-initdb.d
+      - notary_data:/var/lib/postgresql
+    ports:
+      - 5432:5432
+    command: -l
+volumes:
+  notary_data:
+    external: false
+
+networks:
+  mdb:
+    external: false
+  sig:
+    external: false
