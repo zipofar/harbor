@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3"
 
 # uffizzi integration
 x-uffizzi:
@@ -8,28 +8,28 @@ x-uffizzi:
 
 services:
 
-  registry:
-    image: "${REGISTRY_IMAGE}"
-    container_name: registry
-    restart: always
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - SETGID
-      - SETUID
+  # registry:
+  #   image: "${REGISTRY_IMAGE}"
+  #   container_name: registry
+  #   restart: always
+  #   cap_drop:
+  #     - ALL
+  #   cap_add:
+  #     - CHOWN
+  #     - SETGID
+  #     - SETUID
 
-  core:
-    image: "${CORE_IMAGE}"
-    container_name: harbor-core
-    env_file:
-      - ./common/config/core/env
-    restart: always
-    cap_drop:
-      - ALL
-    cap_add:
-      - SETGID
-      - SETUID
+  # core:
+  #   image: "${CORE_IMAGE}"
+  #   container_name: harbor-core
+  #   env_file:
+  #     - ./common/config/core/env
+  #   restart: always
+  #   cap_drop:
+  #     - ALL
+  #   cap_add:
+  #     - SETGID
+  #     - SETUID
 
   portal:
     image: "${PORTAL_IMAGE}"
