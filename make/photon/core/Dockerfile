@@ -19,4 +19,4 @@ RUN chown -R harbor:harbor /etc/pki/tls/certs \
 WORKDIR /harbor/
 USER harbor
 ENTRYPOINT ["/harbor/entrypoint.sh"]
-COPY make/photon/prepare/versions /harbor/
+# COPY make/photon/prepare/versions /harbor/
