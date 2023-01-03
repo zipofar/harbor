@@ -244,8 +244,8 @@ jobs:
       - build-harbor-registry
       - build-harbor-core
       - build-harbor-portal
-      - build-notary-server
-      - build-notary-signer
+      # - build-notary-server
+      # - build-notary-signer
 
     outputs:
       compose-file-cache-key: ${{ steps.hash.outputs.hash }}
