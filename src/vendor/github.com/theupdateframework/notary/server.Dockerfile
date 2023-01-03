@@ -12,7 +12,7 @@ COPY . /go/src/${NOTARYPKG}
 
 WORKDIR /go/src/${NOTARYPKG}
 
-RUN chmod 0600 ./fixtures/database/*
+# RUN chmod 0600 ./fixtures/database/*
 
 ENV SERVICE_NAME=notary_server
 EXPOSE 4443
