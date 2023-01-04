@@ -14,16 +14,16 @@ services:
     volumes:
       - registry_data:/storage
       - ./config/registry/:/etc/registry/:ro
-  # registryctl:
-  #   image: "${REGISTRY_CTL_IMAGE}"
-  #   environment:
-  #     - CORE_SECRET=CHANGEME
-  #     - JOBSERVICE_SECRET=CHANGEME
-  #     - REGISTRY_HTTP_SECRET=CHANGEME
-  #   volumes:
-  #     - registry_data:/storage
-  #     - ./config/registry/:/etc/registry/:ro
-  #     - ./config/registryctl/config.yml:/etc/registryctl/config.yml:ro
+  registryctl:
+    image: "${REGISTRY_CTL_IMAGE}"
+    environment:
+      - CORE_SECRET=CHANGEME
+      - JOBSERVICE_SECRET=CHANGEME
+      - REGISTRY_HTTP_SECRET=CHANGEME
+    volumes:
+      - registry_data:/storage
+      - ./config/registry/:/etc/registry/:ro
+      - ./config/registryctl/config.yml:/etc/registryctl/config.yml:ro
   postgresql:
     image: docker.io/bitnami/postgresql:13
     container_name: harbor-db
@@ -80,22 +80,22 @@ services:
     container_name: harbor-portal
     # depends_on:
     #   - core
-  # jobservice:
-  #   image: "${JOBSERVICE_IMAGE}"
-  #   container_name: harbor-jobservice
-  #   depends_on:
-  #     - redis
-  #     - core
-  #   environment:
-  #     - CORE_SECRET=CHANGEME
-  #     - JOBSERVICE_SECRET=CHANGEME
-  #     - CORE_URL=http://core:8081
-  #     - REGISTRY_CONTROLLER_URL=http://registryctl:8081
-  #     - REGISTRY_CREDENTIAL_USERNAME=harbor_registry_user
-  #     - REGISTRY_CREDENTIAL_PASSWORD=harbor_registry_password
-  #   volumes:
-  #     - jobservice_data:/var/log/jobs
-  #     - ./config/jobservice/config.yml:/etc/jobservice/config.yml:ro
+  jobservice:
+    image: "${JOBSERVICE_IMAGE}"
+    container_name: harbor-jobservice
+    depends_on:
+      - redis
+      - core
+    environment:
+      - CORE_SECRET=CHANGEME
+      - JOBSERVICE_SECRET=CHANGEME
+      - CORE_URL=http://core:8081
+      - REGISTRY_CONTROLLER_URL=http://registryctl:8081
+      - REGISTRY_CREDENTIAL_USERNAME=harbor_registry_user
+      - REGISTRY_CREDENTIAL_PASSWORD=harbor_registry_password
+    volumes:
+      - jobservice_data:/var/log/jobs
+      - ./config/jobservice/config.yml:/etc/jobservice/config.yml:ro
   redis:
     image: redis
     environment:
