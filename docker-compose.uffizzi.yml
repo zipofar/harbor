@@ -8,14 +8,14 @@ x-uffizzi:
 
 services:
   registry:
-    image: docker.io/bitnami/harbor-registry:2
+    image: "${REGISTRY_IMAGE}"
     environment:
       - REGISTRY_HTTP_SECRET=CHANGEME
     volumes:
       - registry_data:/storage
       - ./config/registry/:/etc/registry/:ro
   registryctl:
-    image: docker.io/bitnami/harbor-registryctl:2
+    image: "${REGISTRY_CTL_IMAGE}"
     environment:
       - CORE_SECRET=CHANGEME
       - JOBSERVICE_SECRET=CHANGEME
@@ -34,7 +34,7 @@ services:
     volumes:
       - postgresql_data:/bitnami/postgresql
   core:
-    image: docker.io/bitnami/harbor-core:2
+    image: "${CORE_IMAGE}"
     container_name: harbor-core
     # depends_on:
     #   - registry
@@ -76,12 +76,12 @@ services:
       - ./config/core/app.conf:/etc/core/app.conf:ro
       - ./config/core/private_key.pem:/etc/core/private_key.pem:ro
   portal:
-    image: docker.io/bitnami/harbor-portal:2
+    image: "${PORTAL_IMAGE}"
     container_name: harbor-portal
     # depends_on:
     #   - core
   jobservice:
-    image: docker.io/bitnami/harbor-jobservice:2
+    image: "${JOBSERVICE_IMAGE}"
     container_name: harbor-jobservice
     depends_on:
       - redis
@@ -97,12 +97,12 @@ services:
       - jobservice_data:/var/log/jobs
       - ./config/jobservice/config.yml:/etc/jobservice/config.yml:ro
   redis:
-    image: docker.io/bitnami/redis:7.0
+    image: redis
     environment:
       # ALLOW_EMPTY_PASSWORD is recommended only for development.
       - ALLOW_EMPTY_PASSWORD=yes
   harbor-nginx:
-    image: docker.io/bitnami/nginx:1.23
+    image: nginx:alpine
     container_name: nginx
     volumes:
       - ./nginx-uffizzi:/etc/nginx
