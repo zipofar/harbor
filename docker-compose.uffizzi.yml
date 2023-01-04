@@ -14,16 +14,16 @@ services:
     volumes:
       - registry_data:/storage
       - ./config/registry/:/etc/registry/:ro
-  registryctl:
-    image: "${REGISTRY_CTL_IMAGE}"
-    environment:
-      - CORE_SECRET=CHANGEME
-      - JOBSERVICE_SECRET=CHANGEME
-      - REGISTRY_HTTP_SECRET=CHANGEME
-    volumes:
-      - registry_data:/storage
-      - ./config/registry/:/etc/registry/:ro
-      - ./config/registryctl/config.yml:/etc/registryctl/config.yml:ro
+  # registryctl:
+  #   image: "${REGISTRY_CTL_IMAGE}"
+  #   environment:
+  #     - CORE_SECRET=CHANGEME
+  #     - JOBSERVICE_SECRET=CHANGEME
+  #     - REGISTRY_HTTP_SECRET=CHANGEME
+  #   volumes:
+  #     - registry_data:/storage
+  #     - ./config/registry/:/etc/registry/:ro
+  #     - ./config/registryctl/config.yml:/etc/registryctl/config.yml:ro
   postgresql:
     image: docker.io/bitnami/postgresql:13
     container_name: harbor-db
@@ -65,7 +65,7 @@ services:
       - WITH_CHARTMUSEUM=True
       - CHART_REPOSITORY_URL=http://chartmuseum:8081
       - CORE_URL=http://core:8081
-      - JOBSERVICE_URL=http://jobservice:8081
+      # - JOBSERVICE_URL=http://jobservice:8081
       - REGISTRY_STORAGE_PROVIDER_NAME=filesystem
       - REGISTRY_CREDENTIAL_USERNAME=harbor_registry_user
       - REGISTRY_CREDENTIAL_PASSWORD=harbor_registry_password
@@ -74,28 +74,28 @@ services:
     volumes:
       - core_data:/data
       - ./config/core/app.conf:/etc/core/app.conf:ro
-      - ./config/core/private_key.pem:/etc/core/private_key.pem:ro
+      # - ./config/core/private_key.pem:/etc/core/private_key.pem:ro
   portal:
     image: "${PORTAL_IMAGE}"
     container_name: harbor-portal
     # depends_on:
     #   - core
-  jobservice:
-    image: "${JOBSERVICE_IMAGE}"
-    container_name: harbor-jobservice
-    depends_on:
-      - redis
-      - core
-    environment:
-      - CORE_SECRET=CHANGEME
-      - JOBSERVICE_SECRET=CHANGEME
-      - CORE_URL=http://core:8081
-      - REGISTRY_CONTROLLER_URL=http://registryctl:8081
-      - REGISTRY_CREDENTIAL_USERNAME=harbor_registry_user
-      - REGISTRY_CREDENTIAL_PASSWORD=harbor_registry_password
-    volumes:
-      - jobservice_data:/var/log/jobs
-      - ./config/jobservice/config.yml:/etc/jobservice/config.yml:ro
+  # jobservice:
+  #   image: "${JOBSERVICE_IMAGE}"
+  #   container_name: harbor-jobservice
+  #   depends_on:
+  #     - redis
+  #     - core
+  #   environment:
+  #     - CORE_SECRET=CHANGEME
+  #     - JOBSERVICE_SECRET=CHANGEME
+  #     - CORE_URL=http://core:8081
+  #     - REGISTRY_CONTROLLER_URL=http://registryctl:8081
+  #     - REGISTRY_CREDENTIAL_USERNAME=harbor_registry_user
+  #     - REGISTRY_CREDENTIAL_PASSWORD=harbor_registry_password
+  #   volumes:
+  #     - jobservice_data:/var/log/jobs
+  #     - ./config/jobservice/config.yml:/etc/jobservice/config.yml:ro
   redis:
     image: redis
     environment:
@@ -117,9 +117,9 @@ services:
     container_name: chartmuseum
     image: docker.io/bitnami/chartmuseum:0
     environment:
-      # - CACHE=redis
-      # - CACHE_REDIS_ADDR=redis:6379
-      # - CACHE_REDIS_DB=1
+      - CACHE=redis
+      - CACHE_REDIS_ADDR=redis:6379
+      - CACHE_REDIS_DB=1
       - DEPTH=1
       - PORT=8081
       - STORAGE=local
