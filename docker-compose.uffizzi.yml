@@ -1,4 +1,4 @@
-version: "3"
+version: '3.3'
 
 # uffizzi integration
 x-uffizzi:
@@ -7,112 +7,135 @@ x-uffizzi:
     port: 8081
 
 services:
-
-  # registry:
-  #   image: "${REGISTRY_IMAGE}"
-  #   container_name: registry
-  #   restart: always
-  #   cap_drop:
-  #     - ALL
-  #   cap_add:
-  #     - CHOWN
-  #     - SETGID
-  #     - SETUID
-
-  # core:
-  #   image: "${CORE_IMAGE}"
-  #   container_name: harbor-core
-  #   env_file:
-  #     - ./common/config/core/env
-  #   restart: always
-  #   cap_drop:
-  #     - ALL
-  #   cap_add:
-  #     - SETGID
-  #     - SETUID
-
+  registry:
+    image: docker.io/bitnami/harbor-registry:2
+    environment:
+      - REGISTRY_HTTP_SECRET=CHANGEME
+    volumes:
+      - registry_data:/storage
+      - ./config/registry/:/etc/registry/:ro
+  registryctl:
+    image: docker.io/bitnami/harbor-registryctl:2
+    environment:
+      - CORE_SECRET=CHANGEME
+      - JOBSERVICE_SECRET=CHANGEME
+      - REGISTRY_HTTP_SECRET=CHANGEME
+    volumes:
+      - registry_data:/storage
+      - ./config/registry/:/etc/registry/:ro
+      - ./config/registryctl/config.yml:/etc/registryctl/config.yml:ro
+  postgresql:
+    image: docker.io/bitnami/postgresql:13
+    container_name: harbor-db
+    environment:
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=postgres
+      - POSTGRESQL_USER=postgres
+    volumes:
+      - postgresql_data:/bitnami/postgresql
+  core:
+    image: docker.io/bitnami/harbor-core:2
+    container_name: harbor-core
+    # depends_on:
+    #   - registry
+    #   - chartmuseum
+    environment:
+      # - CORE_KEY=change-this-key
+      # - _REDIS_URL_CORE=redis://redis:6379/0
+      # - SYNC_REGISTRY=false
+      # - CHART_CACHE_DRIVER=redis
+      # - _REDIS_URL_REG=redis://redis:6379/1
+      - PORT=8081
+      - LOG_LEVEL=info
+      # - EXT_ENDPOINT=http://reg.mydomain.com
+      - DATABASE_TYPE=postgresql
+      - REGISTRY_CONTROLLER_URL=http://registryctl:8081
+      - POSTGRESQL_HOST=postgresql
+      - POSTGRESQL_PORT=5432
+      - POSTGRESQL_DATABASE=postgres
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - REGISTRY_URL=http://registry:5000
+      - TOKEN_SERVICE_URL=http://core:8081/service/token
+      - HARBOR_ADMIN_PASSWORD=bitnami
+      - CORE_SECRET=CHANGEME
+      - JOBSERVICE_SECRET=CHANGEME
+      - ADMIRAL_URL=
+      - WITH_NOTARY=False
+      - WITH_CHARTMUSEUM=True
+      - CHART_REPOSITORY_URL=http://chartmuseum:8081
+      - CORE_URL=http://core:8081
+      - JOBSERVICE_URL=http://jobservice:8081
+      - REGISTRY_STORAGE_PROVIDER_NAME=filesystem
+      - REGISTRY_CREDENTIAL_USERNAME=harbor_registry_user
+      - REGISTRY_CREDENTIAL_PASSWORD=harbor_registry_password
+      - READ_ONLY=false
+      # - RELOAD_KEY=
+    volumes:
+      - core_data:/data
+      - ./config/core/app.conf:/etc/core/app.conf:ro
+      - ./config/core/private_key.pem:/etc/core/private_key.pem:ro
   portal:
     image: docker.io/bitnami/harbor-portal:2
     container_name: harbor-portal
-    restart: always
-    # cap_drop:
-    #   - ALL
-    # cap_add:
-    #   - CHOWN
-    #   - SETGID
-    #   - SETUID
-    #   - NET_BIND_SERVICE
-
-  # jobservice:
-  #   image: "${JOBSERVICE_IMAGE}"
-  #   container_name: harbor-jobservice
-  #   env_file:
-  #     - ./common/config/jobservice/env
-  #   restart: always
-  #   cap_drop:
-  #     - ALL
-  #   cap_add:
-  #     - CHOWN
-  #     - SETGID
-  #     - SETUID
-
-  # notary-server:
-  #   image: "${SERVER_IMAGE}"
-  #   environment:
-  #     DB_URL: postgres://postgres:postgres@localhost:5432
-
-  # notary-signer:
-  #   image: "${SIGNER_IMAGE}"
-  #   environment:
-  #     DB_URL: postgres://postgres:postgres@localhost:5432
-  #   container_name: notary-signer
-  #   restart: always
-  #   networks:
-  #     harbor-notary:
-  #     notary-sig:
-  #       aliases:
-  #         - notarysigner
-
-  # signer:
-  #   image: "${SIGNER_IMAGE}"
-  #   networks:
-  #     mdb:
-  #     sig:
-  #       aliases:
-  #         - notarysigner
-  #   # entrypoint: /usr/bin/env sh
-  #   # command: -c "./migrations/migrate.sh && notary-signer -config=fixtures/signer-config.postgres.json"
-  #   environment:
-  #     # MIGRATIONS_PATH: migrations/signer/postgresql
-  #     DB_URL: postgres://postgres:postgres@localhost:5432
-  #   depends_on:
-  #     - postgresql
-
+    # depends_on:
+    #   - core
+  jobservice:
+    image: docker.io/bitnami/harbor-jobservice:2
+    container_name: harbor-jobservice
+    depends_on:
+      - redis
+      - core
+    environment:
+      - CORE_SECRET=CHANGEME
+      - JOBSERVICE_SECRET=CHANGEME
+      - CORE_URL=http://core:8081
+      - REGISTRY_CONTROLLER_URL=http://registryctl:8081
+      - REGISTRY_CREDENTIAL_USERNAME=harbor_registry_user
+      - REGISTRY_CREDENTIAL_PASSWORD=harbor_registry_password
+    volumes:
+      - jobservice_data:/var/log/jobs
+      - ./config/jobservice/config.yml:/etc/jobservice/config.yml:ro
+  redis:
+    image: docker.io/bitnami/redis:7.0
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
   harbor-nginx:
-    image: nginx:alpine
+    image: docker.io/bitnami/nginx:1.23
     container_name: nginx
     volumes:
       - ./nginx-uffizzi:/etc/nginx
-
-  postgresql:
-    image: postgres:latest
-    environment:
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=password
-    networks:
-      - mdb
-    volumes:
-      # - ./notarysql/postgresql-initdb.d:/docker-entrypoint-initdb.d
-      - notary_data:/var/lib/postgresql
     ports:
-      - 5432:5432
-    command: -l
+      - '8081:8081'
+    depends_on:
+      - postgresql
+      - registry
+      - core
+      - portal
+  chartmuseum:
+    container_name: chartmuseum
+    image: docker.io/bitnami/chartmuseum:0
+    environment:
+      # - CACHE=redis
+      # - CACHE_REDIS_ADDR=redis:6379
+      # - CACHE_REDIS_DB=1
+      - DEPTH=1
+      - PORT=8081
+      - STORAGE=local
+      - STORAGE_LOCAL_ROOTDIR=/uffizzi/data
+      - ALLOW_OVERWRITE=true
+      - INDEX_LIMIT=0
+    volumes:
+      - chartmuseum_data:/bitnami/data
 volumes:
-  notary_data:
-    external: false
-
-networks:
-  mdb:
-    external: false
-  sig:
-    external: false
+  registry_data:
+    driver: local
+  core_data:
+    driver: local
+  jobservice_data:
+    driver: local
+  postgresql_data:
+    driver: local
+  chartmuseum_data:
+    driver: local
